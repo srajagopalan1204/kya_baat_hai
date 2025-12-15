@@ -1,0 +1,23 @@
+.
+├── Prev_stuff
+│   └── docs
+│       └── SOPs
+│           ├── 00_Index.md
+│           ├── 10_Workflow_SRO.md
+│           └── 20_Release_Checklist.md
+├── README.md
+├── Root
+│   └── Chk_Lst
+│       ├── Prev
+│       ├── README.md
+│       ├── docs
+│       ├── rep_checklists
+│       ├── specs
+│       ├── src
+│       │   └── checklist_builder.py
+│       └── templates
+│           └── SOP_Build_Checklist_template_v3_3.html
+├── init_chk_lst_scaffold.py
+└── tree_251114_0948.txt
+
+12 directories, 9 files

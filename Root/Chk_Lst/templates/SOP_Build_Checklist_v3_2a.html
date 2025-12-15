@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SOP Build – Interactive Checklist (v3.3 Warranty, multi-run)</title>
+<style>
+  :root {
+    --bg: #f7f7fb;
+    --panel: #fff;
+    --ink: #111;
+    --muted: #666;
+    --line: #d3d6e3;
+    --accent: #0b5fff;
+    --accent-ink: #fff;
+    --radius-lg: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 20px 40px rgba(0,0,0,.08);
+    --mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+    --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.45 var(--font);
+  }
+
+  header.apphead {
+    background: var(--panel);
+    box-shadow: 0 1px 2px rgba(0,0,0,.05);
+    border-bottom: 1px solid var(--line);
+    padding: 16px 20px 24px;
+  }
+
+  .appwrap {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    margin: 0 0 8px 0;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--ink);
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    align-items: baseline;
+  }
+
+  h1 .tagver {
+    background: #eef2ff;
+    color: #1e3a8a;
+    border-radius: var(--radius-sm);
+    padding: 2px 6px;
+    font-size: .8rem;
+    font-weight: 500;
+  }
+
+  .subhead {
+    color: var(--muted);
+    font-size: .9rem;
+    line-height: 1.4;
+  }
+
+  .toprow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    align-items: center;
+    margin-top: 12px;
+    font-size: .9rem;
+  }
+  .statbubble {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+    min-width: 80px;
+    text-align: center;
+    line-height:1.3;
+    box-shadow:0 2px 4px rgba(0,0,0,.03);
+  }
+  .statbubble .label {
+    color: var(--muted);
+    font-size: .7rem;
+    display:block;
+  }
+  .statbubble .value {
+    font-weight:600;
+    font-size:.9rem;
+    color: var(--ink);
+    display:block;
+  }
+
+  .toolbar {
+    display:flex;
+    flex-wrap:wrap;
+    gap:.5rem;
+    margin-top:8px;
+  }
+  button.ctrl {
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding:6px 10px;
+    font-size:.8rem;
+    cursor:pointer;
+    line-height:1.3;
+    box-shadow:0 2px 4px rgba(0,0,0,.03);
+  }
+  button.ctrl.primary {
+    background:var(--accent);
+    color:var(--accent-ink);
+    border-color:var(--accent);
+  }
+
+  /* Form panel */
+  .meta-panel-wrap {
+    background: transparent;
+    padding: 20px;
+  }
+  .meta-panel {
+    max-width:1200px;
+    margin:0 auto;
+    background: var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding:20px;
+  }
+  .meta-grid {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    grid-gap:12px 20px;
+  }
+  .meta-col {
+    background:#fafafa;
+    border:1px solid var(--line);
+    border-radius:var(--radius-sm);
+    padding:12px;
+  }
+  .fieldlabel {
+    font-size:.8rem;
+    font-weight:500;
+    color:var(--muted);
+    margin-bottom:4px;
+  }
+  input.bigfield {
+    width:100%;
+    padding:8px 10px;
+    border:1px solid var(--line);
+    border-radius:var(--radius-sm);
+    font-size:.9rem;
+    font-family:var(--font);
+    background:#fff;
+  }
+
+  /* Steps */
+  .steps-wrap {
+    max-width:1200px;
+    margin:0 auto 60px;
+    padding:0 20px 40px;
+  }
+  details.stepcard {
+    background: var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    box-shadow: var(--shadow);
+    margin-bottom:16px;
+  }
+  details.stepcard[open] {
+    outline:2px solid var(--accent);
+    outline-offset:-2px;
+  }
+  summary.steptitle {
+    list-style:none;
+    cursor:pointer;
+    padding:16px 20px;
+    border-bottom:1px solid var(--line);
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:12px;
+  }
+  summary.steptitle::-webkit-details-marker{display:none}
+  .steptitle-left {
+    min-width:0;
+  }
+  .steptitle-left .sopstep {
+    font-size:.75rem;
+    font-weight:600;
+    color:#fff;
+    background:var(--accent);
+    border-radius:999px;
+    padding:2px 8px;
+    margin-right:8px;
+  }
+  .steptitle-left .mainline {
+    font-size:1rem;
+    font-weight:600;
+    color:var(--ink);
+  }
+  .reminder {
+    color:var(--muted);
+    font-size:.8rem;
+    line-height:1.4;
+    margin-top:4px;
+    word-break:break-word;
+  }
+  .steptitle-right {
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    text-align:right;
+    font-size:.7rem;
+    color:var(--muted);
+    min-width:120px;
+  }
+  .runcount {
+    font-weight:600;
+    color:var(--ink);
+  }
+
+  .stepbody {
+    padding:16px 20px 20px;
+    font-size:.9rem;
+    line-height:1.45;
+  }
+  .cmdblock {
+    background:#0f172a;
+    color:#e2e8f0;
+    font-family:var(--mono);
+    white-space:pre-wrap;
+    border-radius:var(--radius-sm);
+    padding:12px;
+    font-size:.8rem;
+    line-height:1.4;
+    overflow-x:auto;
+    position:relative;
+  }
+  .cmdlabel {
+    font-size:.7rem;
+    font-weight:500;
+    color:#94a3b8;
+    margin-bottom:4px;
+  }
+  .copyrow {
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:8px;
+    margin-bottom:8px;
+  }
+  button.copybtn {
+    background:var(--accent);
+    border:1px solid var(--accent);
+    color:#fff;
+    border-radius:var(--radius-sm);
+    padding:4px 8px;
+    font-size:.7rem;
+    cursor:pointer;
+    line-height:1.3;
+  }
+
+  .actions-row {
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin:16px 0 8px;
+  }
+  button.stepbtn {
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:var(--radius-sm);
+    padding:6px 10px;
+    font-size:.8rem;
+    cursor:pointer;
+    box-shadow:0 2px 4px rgba(0,0,0,.03);
+  }
+  button.stepbtn.primary {
+    background:var(--accent);
+    color:var(--accent-ink);
+    border-color:var(--accent);
+  }
+  button.stepbtn.danger {
+    background:#fee2e2;
+    color:#991b1b;
+    border-color:#fecaca;
+  }
+
+  .twocol {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    grid-gap:16px;
+  }
+  .twocol > div {
+    min-width:0;
+  }
+
+  .notesbox {
+    width:100%;
+    min-height:60px;
+    font-family:var(--font);
+    font-size:.8rem;
+    line-height:1.4;
+    border:1px solid var(--line);
+    border-radius:var(--radius-sm);
+    padding:8px 10px;
+  }
+
+  .runlog {
+    background:#fafafa;
+    border:1px solid var(--line);
+    border-radius:var(--radius-sm);
+    padding:8px 10px;
+    font-size:.75rem;
+    line-height:1.4;
+    max-height:160px;
+    overflow-y:auto;
+    white-space:pre-wrap;
+  }
+  .runlog strong { color:#111; }
+
+  .footer-note {
+    text-align:center;
+    font-size:.8rem;
+    color:var(--muted);
+    margin:40px 0 60px;
+  }
+
+  @media(max-width:780px){
+    .meta-grid{grid-template-columns:1fr;}
+    .twocol{grid-template-columns:1fr;}
+    .steptitle-right{flex-direction:row;justify-content:flex-start;align-items:flex-start;text-align:left;gap:6px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="apphead">
+  <div class="appwrap">
+    <h1>
+      SOP Build – Interactive Checklist
+      <span class="tagver">(v3.3, multi-run)</span>
+    </h1>
+    <div class="subhead">
+      Tracks retries (“re-open step”), timestamps each attempt, and exports a text log.
+      Data stays in your browser (localStorage).
+    </div>
+
+    <div class="toprow">
+      <div class="statbubble">
+        <span class="label">Steps:</span>
+        <span class="value" id="statSteps">0</span>
+      </div>
+      <div class="statbubble">
+        <span class="label">Done:</span>
+        <span class="value" id="statDone">0</span>
+      </div>
+      <div class="statbubble">
+        <span class="label">Progress:</span>
+        <span class="value" id="statProgress">0%</span>
+      </div>
+
+      <div class="toolbar">
+        <button class="ctrl" onclick="saveState()">Save State</button>
+        <button class="ctrl" onclick="loadState()">Load State</button>
+        <button class="ctrl primary" onclick="exportText()">Export Text</button>
+        <button class="ctrl" onclick="doReset()">Reset</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="meta-panel-wrap">
+  <div class="meta-panel">
+    <div class="meta-grid">
+      <div class="meta-col">
+        <div class="fieldlabel">Project / Repo</div>
+        <input class="bigfield" id="metaRepo" value="EdxBuild"/>
+        <div class="fieldlabel" style="margin-top:12px;">Entity / Function / SubEntity</div>
+        <input class="bigfield" id="metaEntity" value="Palco / Service / Warranty"/>
+      </div>
+      <div class="meta-col">
+        <div class="fieldlabel">SOP ID (final)</div>
+        <input class="bigfield" id="metaSOP" value="Warranty"/>
+        <div class="fieldlabel" style="margin-top:12px;">Image Folder</div>
+        <input class="bigfield" id="metaImgFolder" value="SOP/images/Palco/Service/Warranty/"/>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="steps-wrap" id="stepsContainer">
+  <!-- Steps will be injected by JS -->
+</section>
+
+<div class="footer-note">
+  Built for local use. Nothing is uploaded automatically. You decide when to push to GitHub.
+</div>
+
+<script>
+/*
+DATA MODEL
+Each step object has:
+{
+  id: "step1",
+  title: "Verify PPT slides",
+  reminder: "Why we're doing this...",
+  command: "powershell ...",
+  notes: "",
+  runs: [
+    {
+      start: timestamp,
+      end: timestamp | null,
+      status: "started"|"done"|"redo"
+    }, ...
+  ]
+}
+
+We render them as <details> cards with:
+- Start Attempt (new run with start timestamp)
+- Mark Done (close last run with end timestamp + status done)
+- Redo Step (push new run w/start + status redo)
+We also keep a notes textarea per-step.
+
+We compute progress = how many steps have at least 1 run completed (end != null).
+We Save/Load entire state to localStorage as JSON.
+We Export Text: summary with timestamps, including multiple attempts,
+plus meta info at the top (repo, SOP ID, entity, image folder).
+*/
+
+// Helper: timestamp string
+function ts() {
+  const d = new Date();
+  // yyyy-mm-dd hh:mm:ss local
+  const pad=n=>String(n).padStart(2,"0");
+  return (
+    d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+" "+
+    pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds())
+  );
+}
+
+// INITIAL STEPS for Warranty pipeline
+// These mirror the v3.2 flow you and I defined, including PPT verify,
+// export PNG/CSV, narration merge, normalize taxonomy, validate,
+// build story, build player, publish menu+player, curl verify.
+let steps = [
+  {
+    id:"step1",
+    title:"Verify PPT slides (Warranty)",
+    reminder:
+`Run verify_slide.ps1 on the Warranty PPT before you do anything else.
+This makes sure all slide titles are readable so we don't push garbage.
+If a slide name is wrong, fix PPT and rerun.`,
+    command:
+`powershell -ExecutionPolicy Bypass -File "C:\\Users\\scottuser\\Documents\\SonetLumier\\Code\\verify_slide.ps1" \`
+  -Path "C:\\Users\\scottuser\\Documents\\SonetLumier\\Input\\PPS_Warranty_YYYYMMDD_HHMM.pptx" \`
+  -Out  "C:\\Users\\scottuser\\Documents\\SonetLumier\\Logs\\verify_Warranty_$(Get-Date -f 'MMddyy_HHmm').txt"
+
+# Check log. Fix any bad/missing titles in PPT before moving on.`,
+    notes:"",
+    runs:[]
+  },
+  {
+    id:"step2",
+    title:"Export PNG and raw CSV from PPT",
+    reminder:
+`Use exp_slide_n_csv.ps1 to dump Warranty slides to PNGs and create first CSV.
+Then copy outputs:
+  • PNGs into Codespaces → /workspaces/EdxBuild/SOP/images/Palco/Service/Warranty/
+  • Raw CSV into Codespaces → /workspaces/EdxBuild/narr/Inputs/Warranty/raw/...csv`,
+    command:
+`powershell -ExecutionPolicy Bypass -File "C:\\Users\\scottuser\\Documents\\SonetLumier\\Code\\exp_slide_n_csv.ps1" \`
+  -Path      "C:\\Users\\scottuser\\Documents\\SonetLumier\\Input\\PPS_Warranty_YYYYMMDD_HHMM.pptx" \`
+  -OutDir    "C:\\Users\\scottuser\\Documents\\SonetLumier\\images\\Warranty" \`
+  -OutMapDir "C:\\Users\\scottuser\\Documents\\SonetLumier\\Slide_Map" \`
+  -Sop       "Warranty" \`
+  -width "1600"
+
+# After running on Windows:
+#   mkdir -p /workspaces/EdxBuild/SOP/images/Palco/Service/Warranty
+#   mkdir -p /workspaces/EdxBuild/narr/Inputs/Warranty/raw
+# Copy PNGs → /workspaces/EdxBuild/SOP/images/Palco/Service/Warranty/
+# Copy CSV → /workspaces/EdxBuild/narr/Inputs/Warranty/raw/Warranty_Raw_<timestamp>.csv`,
+    notes:"",
+    runs:[]
+  },
+  {
+    id:"step3",
+    title:"Run transi_gen_new.py Stage 1: poss_merge",
+    reminder:
+`This marries the raw Warranty CSV with narration snippets (narr_latest).
+It creates possible matches and a reviewer sheet.`,
+    command:
+`python "/workspaces/EdxBuild/narr/src/transi_gen_new.py" \\
+  --gen poss_merge \\
+  --sop Warranty \\
+  --raw "/workspaces/EdxBuild/narr/Inputs/Warranty/raw/Warranty_Raw_<timestamp>.csv" \\
+  --narr "/workspaces/EdxBuild/narr/Outputs/Warranty/Warranty_narr_latest.csv" \\
+  --out "/workspaces/EdxBuild/narr/Outputs/Warranty/transi" \\
+  --thresh 0.72
+
+# Output example:
+# /workspaces/EdxBuild/narr/Outputs/Warranty/transi/Warranty_poss_merge_*.csv
+# /workspaces/EdxBuild/narr/Outputs/Warranty/transi/Warranty_Resp_poss_merge_*.csv
+
+# Then you REVIEW/EDIT *_Resp_poss_merge_*.csv by hand (labels, options).`,
+    notes:"",
+    runs:[]
+  },
+  {
+    id:"step4",
+    title:"Run transi_gen_new.py Stage 2: premerge",
+    reminder:
+`Takes the reviewed *_Resp_poss_merge file and produces PreMerge.
+PreMerge is where you’ll insert any UAP links, choice labels, etc.`,
+    command:
+`python "/workspaces/EdxBuild/narr/src/transi_gen_new.py" \\
+  --gen premerge \\
+  --sop Warranty \\
+  --raw "/workspaces/EdxBuild/narr/Inputs/Warranty/raw/Warranty_Raw_<timestamp>.csv" \\
+  --narr "/workspaces/EdxBuild/narr/Outputs/Warranty/Warranty_narr_latest.csv" \\
+  --resp "/workspaces/EdxBuild/narr/Outputs/Warranty/transi/Warranty_Resp_poss_merge_<timestamp>.csv" \\
+  --out "/workspaces/EdxBuild/narr/Outputs/Warranty/transi"
+
+# Output:
+# /workspaces/EdxBuild/narr/Outputs/Warranty/transi/Warranty_PreMerge_<timestamp>.csv
+
+# IMPORTANT manual edit:
+# Add/confirm these blank columns in PreMerge before next stage:
+#   Disp_next1, Disp_next2, Disp_next3, UAP url, UAP Label
+# Save as Warranty_UAP_EDT_PreMerge_<timestamp>.csv`,
+    notes:"",
+    runs:[]
+  },
+  {
+    id:"step5",
+    title:"Run transi_gen_new.py Stage 3: tw_mk_in (mk_tw_in CSV)",
+    reminder:
+`This step turns PreMerge into the final mk_tw_in CSV for Warranty.
+That CSV will become story.json later.`,
+    command:
+`python "/workspaces/EdxBuild/narr/src/transi_gen_new.py" \\
+  --gen tw_mk_in \\
+  --sop Warranty \\
+  --premerge "/workspaces/EdxBuild/narr/Outputs/Warranty/transi/Warranty_UAP_EDT_PreMerge_<timestamp>.csv" \\
+  --out "/workspaces/EdxBuild/narr/Outputs/Warranty/transi"
+
+# Output:
+# /workspaces/EdxBuild/narr/Outputs/Warranty/transi/Warranty_mk_tw_in_<timestamp>.csv`,
+    notes:"",
+    runs:[]
+  },
+  {
+    id:"step6",
+    title:"Normalize taxonomy (fill Entity/Function/SOP_path/etc.)",
+    reminder:
+`This stamps Entity/Function/SubEntity, SOP_id=Warranty,
+and SOP_path=SOP/images/Palco/Service/Warranty into each row.
+It also sets columns like SOP_id, SOP_path, etc.`,
+    command:
+`python narr/src/normalize_taxonomy.py \\
+  --in "/workspaces/EdxBuild/narr/Outputs/Warranty/transi/Warranty_mk_tw_in_<timestamp>.csv" \\
+  --out "/workspaces/EdxBuild/narr/Outputs/Warranty/build_in/Warranty_mk_tw_in_READY_$(date +%m%d%y_%H%M).csv" \\
+  --sop-id Warranty \\
+  --taxonomy-config narr/Config/taxonomy.json5
+
+# taxonomy.json5 must have:
+# "Warranty": { "Entity": "Palco", "Function": "Service", "SubEntity": "Warranty" }`,
+    notes:"",
+    runs:[]
+  },
+  {
+    id:"step7",
+    title:"Validate environment (CSV headers + images exist)",
+    reminder:
+`We confirm:
+  • CSV has required headers (Code, Title, Image_sub_url, SOP_id, etc.)
+  • Every Image_sub_url really exists under SOP/images/.../Warranty/.
+This is where missing image paths get caught BEFORE story.json.`,
+    command:
+`python src/validate_env.py \\
+  --csv  /workspaces/EdxBuild/narr/Outputs/Warranty/build_in/Warranty_mk_tw_in_READY_*.csv \\
+  --images /workspaces/EdxBuild/SOP/images/Palco/Service/Warranty/ \\
+  --check-images \\
+  --log logs/Warranty_validate_$(date +%m%d%y_%H%M).log
+
+# Fix bad paths NOW (rename PNGs or update Image_sub_url).
+# Re-run validate_env.py if you fix something.`,
+    notes:"",
+    runs:[]
+  },
+  {
+    id:"step8",
+    title:"Generate story.json for Warranty",
+    reminder:
+`This converts the READY CSV → .build/story/Warranty/story.json.
+That JSON is what the browser player loads (frames, titles, branching).`,
+    command:
+`mkdir -p /workspaces/EdxBuild/.build/story/Warranty
+
+python src/csv_to_story.py \\
+  --csv /workspaces/EdxBuild/narr/Outputs/Warranty/build_in/Warranty_mk_tw_in_READY_*.csv \\
+  --sop-id Warranty \\
+  --out /workspaces/EdxBuild/.build/story/Warranty/story.json \\
+  --log /workspaces/EdxBuild/logs/csv_to_story_warranty_$(date +%m%d%y_%H%M).log
+
+# Then stage it for serving:
+mkdir -p /workspaces/EdxBuild/story/Warranty
+cp /workspaces/EdxBuild/.build/story/Warranty/story.json /workspaces/EdxBuild/story/Warranty/story.json`,
+    notes:"",
+    runs:[]
+  },
+  {
+    id:"step9",
+    title:"Build Warranty player HTML",
+    reminder:
+`This generates site/BUILD/warranty_player.html.
+We point it to ../../story/Warranty/story.json and set Exit -> index.html.
+We also include the 65% image sizing and Back/Menu nav.`,
+    command:
+`python src/build_player.py \\
+  --story ../../story/Warranty/story.json \\
+  --out site/BUILD/warranty_player.html \\
+  --title "Warranty – SOP Player" \\
+  --mode prod \\
+  --image-width 65 \\
+  --exit "index.html"
+
+# After this:
+#   site/BUILD/warranty_player.html should exist.
+# Open it in Codespaces preview (port 8080 etc.) and test branching.`,
+    notes:"",
+    runs:[]
+  },
+  {
+    id:"step10",
+    title:"Add Warranty card to site/BUILD/index.html",
+    reminder:
+`Edit the menu so Warranty is selectable:
+<div class="card">
+  <h2>Warranty</h2>
+  <p class="muted">Warranty SOP interactive player.</p>
+  <a class="btn primary" href="warranty_player.html">Open</a>
+</div>
+
+Also keep TechMobile and ServReqOrd cards there.`,
+    command:
+`# Manually edit site/BUILD/index.html.
+# Add a new <div class="card"> block for Warranty that links
+# to warranty_player.html.
+
+# Then verify locally:
+#   python -m http.server 8080
+#   open http://localhost:8080/site/BUILD/index.html (or Codespaces forwarded port)
+# Click Warranty -> should open warranty_player.html OK.`,
+    notes:"",
+    runs:[]
+  },
+  {
+    id:"step11",
+    title:"Commit & push Warranty (story, images, player, menu)",
+    reminder:
+`We now push Warranty assets to GitHub main branch.
+After push, GitHub Pages will serve:
+  • story/Warranty/story.json
+  • site/BUILD/warranty_player.html
+  • SOP/images/Palco/Service/Warranty/*.png`,
+    command:
+`git add \\
+  SOP/images/Palco/Service/Warranty/*.png \\
+  story/Warranty/story.json \\
+  site/BUILD/warranty_player.html \\
+  site/BUILD/index.html
+
+git commit -m "Publish Warranty SOP (menu, player, story, images)"
+git push`,
+    notes:"",
+    runs:[]
+  },
+  {
+    id:"step12",
+    title:"GitHub Pages curl verify (final sign-off)",
+    reminder:
+`We hit Pages URLs directly to confirm 200 OK:
+  1. story JSON
+  2. one Warranty image
+  3. warranty_player.html
+If all 200, we're live.`,
+    command:
+`# Replace <you> with your GitHub username, e.g. srajagopalan1204
+
+# 1) story JSON
+curl -I https://<you>.github.io/EdxBuild/story/Warranty/story.json
+
+# 2) one Warranty PNG
+curl -I https://<you>.github.io/EdxBuild/SOP/images/Palco/Service/Warranty/M1.png
+
+# 3) the player HTML
+curl -I https://<you>.github.io/EdxBuild/site/BUILD/warranty_player.html
+
+# If these return HTTP/2 200, public training link is live.
+# Final QA: open the menu
+#   https://<you>.github.io/EdxBuild/site/BUILD/index.html
+# Click Warranty card -> confirm images/branching/back/menu all work.`,
+    notes:"",
+    runs:[]
+  }
+];
+
+// --- state handling in memory ---
+function newestRun(step){
+  if(!step.runs || !step.runs.length) return null;
+  return step.runs[step.runs.length-1];
+}
+function markStart(step, mode){
+  // mode: "start" or "redo"
+  step.runs.push({
+    start: ts(),
+    end: null,
+    status: (mode==="redo" ? "redo" : "started")
+  });
+}
+function markDone(step){
+  let r = newestRun(step);
+  if(!r){
+    // if user hits "Mark Done" before "Start Attempt",
+    // auto-create a run:
+    r = {start: ts(), end: null, status:"started"};
+    step.runs.push(r);
+  }
+  if(!r.end){
+    r.end = ts();
+    if(r.status==="started") r.status="done";
+  }
+}
+
+function stepIsDone(step){
+  // considered "done" if any run has end != null
+  return step.runs.some(r=>r.end);
+}
+
+// recompute global stats
+function updateStats(){
+  const total = steps.length;
+  let doneCount=0;
+  steps.forEach(s=>{
+    if(stepIsDone(s)) doneCount++;
+  });
+  const pct = total>0 ? Math.round((doneCount/total)*100) : 0;
+  document.getElementById("statSteps").textContent = total;
+  document.getElementById("statDone").textContent  = doneCount;
+  document.getElementById("statProgress").textContent = pct+"%";
+}
+
+// render run log text
+function renderRunLog(step){
+  if(!step.runs || !step.runs.length){
+    return "No attempts yet.";
+  }
+  let out="";
+  step.runs.forEach((r,i)=>{
+    out +=
+`Attempt ${i+1}:
+  status: ${r.status}
+  start:  ${r.start || "-"}
+  end:    ${r.end   || "(still open)"}
+`;
+    out += "\n";
+  });
+  return out;
+}
+
+// Build HTML for each step card
+function renderSteps(){
+  const wrap = document.getElementById("stepsContainer");
+  wrap.innerHTML = "";
+  steps.forEach((step, idx)=>{
+    const done = stepIsDone(step);
+    const runCount = step.runs ? step.runs.length : 0;
+
+    // step card
+    const det = document.createElement("details");
+    det.className="stepcard";
+    det.id = step.id;
+    // open first step by default
+    if(idx===0) det.setAttribute("open","open");
+
+    const sum = document.createElement("summary");
+    sum.className="steptitle";
+    sum.innerHTML = `
+      <div class="steptitle-left">
+        <div class="mainline">
+          <span class="sopstep">Step ${idx+1}${done ? " ✓" : ""}</span>
+          ${escapeHtml(step.title)}
+        </div>
+        <div class="reminder">${escapeHtml(step.reminder)}</div>
+      </div>
+      <div class="steptitle-right">
+        <div><span class="runcount">${runCount} run${runCount===1?"":"s"}</span></div>
+        <div>${done ? "Last status: done" : "Not done"}</div>
+      </div>
+    `;
+    det.appendChild(sum);
+
+    const body = document.createElement("div");
+    body.className="stepbody";
+
+    // actions row
+    const act = document.createElement("div");
+    act.className="actions-row";
+    // Start Attempt
+    const bStart = document.createElement("button");
+    bStart.className="stepbtn primary";
+    bStart.textContent="Start Attempt";
+    bStart.onclick = ()=>{
+      markStart(step,"start");
+      syncNotesFromUI(step);
+      renderSteps(); saveStateSilently();
+    };
+    act.appendChild(bStart);
+
+    // Mark Done
+    const bDone = document.createElement("button");
+    bDone.className="stepbtn";
+    bDone.textContent="Mark Done";
+    bDone.onclick = ()=>{
+      markDone(step);
+      syncNotesFromUI(step);
+      renderSteps(); saveStateSilently();
+    };
+    act.appendChild(bDone);
+
+    // Redo Step
+    const bRedo = document.createElement("button");
+    bRedo.className="stepbtn";
+    bRedo.textContent="Redo Step";
+    bRedo.onclick = ()=>{
+      markStart(step,"redo"); // new run w/ status "redo"
+      syncNotesFromUI(step);
+      renderSteps(); saveStateSilently();
+    };
+    act.appendChild(bRedo);
+
+    body.appendChild(act);
+
+    // 2 column layout: command + notes / runlog
+    const two = document.createElement("div");
+    two.className="twocol";
+
+    // left col => command + notes
+    const left = document.createElement("div");
+
+    // command
+    const copyRow = document.createElement("div");
+    copyRow.className="copyrow";
+    copyRow.innerHTML = `
+      <div class="cmdlabel">Command / reference (copy & paste, edit paths <timestamp>, etc.)</div>
+      <button class="copybtn">Copy Command</button>
+    `;
+    // attach copy
+    copyRow.querySelector("button.copybtn").onclick = ()=>{
+      navigator.clipboard.writeText(step.command);
+      alert("Copied command for "+step.title);
+    };
+    left.appendChild(copyRow);
+
+    const cmdBlock = document.createElement("pre");
+    cmdBlock.className="cmdblock";
+    cmdBlock.textContent = step.command;
+    left.appendChild(cmdBlock);
+
+    // notes area
+    const notesLbl = document.createElement("div");
+    notesLbl.className="cmdlabel";
+    notesLbl.style.marginTop="12px";
+    notesLbl.textContent="Notes for this step (what happened, tweaks, file names, etc.)";
+    left.appendChild(notesLbl);
+
+    const ta = document.createElement("textarea");
+    ta.className="notesbox";
+    ta.value = step.notes || "";
+    ta.onchange = ()=>{
+      step.notes = ta.value;
+      saveStateSilently();
+    };
+    left.appendChild(ta);
+
+    two.appendChild(left);
+
+    // right col => run log
+    const right = document.createElement("div");
+    const rlLbl = document.createElement("div");
+    rlLbl.className="cmdlabel";
+    rlLbl.textContent="Run log (all attempts):";
+    right.appendChild(rlLbl);
+
+    const rl = document.createElement("div");
+    rl.className="runlog";
+    rl.textContent = renderRunLog(step);
+    right.appendChild(rl);
+
+    two.appendChild(right);
+    body.appendChild(two);
+
+    det.appendChild(body);
+    wrap.appendChild(det);
+  });
+
+  updateStats();
+}
+
+// escape html helper
+function escapeHtml(str){
+  return (str||"").replace(/[&<>"]/g, c=>(
+    c==="&"?"&amp;":c==="<"?"&lt;":c===">"?"&gt;":c
+  ));
+}
+
+// Save/load/reset/export
+
+function collectState(){
+  return {
+    metaRepo: document.getElementById("metaRepo").value,
+    metaSOP: document.getElementById("metaSOP").value,
+    metaEntity: document.getElementById("metaEntity").value,
+    metaImgFolder: document.getElementById("metaImgFolder").value,
+    steps
+  };
+}
+
+function applyState(st){
+  if(st.metaRepo!==undefined)   document.getElementById("metaRepo").value = st.metaRepo;
+  if(st.metaSOP!==undefined)    document.getElementById("metaSOP").value = st.metaSOP;
+  if(st.metaEntity!==undefined) document.getElementById("metaEntity").value = st.metaEntity;
+  if(st.metaImgFolder!==undefined) document.getElementById("metaImgFolder").value = st.metaImgFolder;
+  if(st.steps){
+    steps = st.steps;
+  }
+  renderSteps();
+}
+
+function saveState(){
+  const st = collectState();
+  localStorage.setItem("sopBuildWarranty_v33", JSON.stringify(st));
+  alert("Saved to browser.");
+}
+
+function saveStateSilently(){
+  const st = collectState();
+  localStorage.setItem("sopBuildWarranty_v33", JSON.stringify(st));
+}
+
+function loadState(){
+  const raw = localStorage.getItem("sopBuildWarranty_v33");
+  if(!raw){
+    alert("No saved state found in this browser.");
+    return;
+  }
+  try{
+    const st = JSON.parse(raw);
+    applyState(st);
+    alert("State restored.");
+  }catch(e){
+    alert("Could not parse saved state.");
+  }
+}
+
+function doReset(){
+  if(!confirm("This will clear all saved state and reload the page. Are you sure?")) return;
+  localStorage.removeItem("sopBuildWarranty_v33");
+  location.reload();
+}
+
+// capture textarea edits before rerender
+function syncNotesFromUI(step){
+  // we already update on textarea.onchange
+  // nothing else required here right now
+}
+
+// Export text with timestamps
+function exportText(){
+  const st = collectState();
+  const now = new Date();
+  const pad=n=>String(n).padStart(2,"0");
+  const tsFile =
+    now.getFullYear()+"-"+pad(now.getMonth()+1)+"-"+pad(now.getDate())+
+    "T"+pad(now.getHours())+"-"+pad(now.getMinutes())+"-"+pad(now.getSeconds());
+
+  let out = "";
+  out += "SOP Build Report (Warranty)\n";
+  out += "Generated: "+ts()+"\n\n";
+  out += "Repo: "+st.metaRepo+"\n";
+  out += "SOP ID: "+st.metaSOP+"\n";
+  out += "Entity/Function/SubEntity: "+st.metaEntity+"\n";
+  out += "Image Folder: "+st.metaImgFolder+"\n\n";
+
+  st.steps.forEach((step, idx)=>{
+    out += "------------------------------------------------------------\n";
+    out += `Step ${idx+1}: ${step.title}\n\n`;
+    out += "Reminder:\n"+(step.reminder||"")+"\n\n";
+    out += "Command:\n"+(step.command||"")+"\n\n";
+    out += "Notes:\n"+(step.notes||"(none)")+"\n\n";
+    out += "Runs:\n";
+    if(step.runs && step.runs.length){
+      step.runs.forEach((r,i)=>{
+        out += `  Attempt ${i+1}:\n`;
+        out += `    status: ${r.status}\n`;
+        out += `    start:  ${r.start || "-"}\n`;
+        out += `    end:    ${r.end || "(still open)"}\n`;
+      });
+    } else {
+      out += "  (none)\n";
+    }
+    out += "\n";
+  });
+
+  const blob = new Blob([out], {type:"text/plain"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `Warranty_build_report_${tsFile}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// init render
+renderSteps();
+</script>
+</body>
+</html>

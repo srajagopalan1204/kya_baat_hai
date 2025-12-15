@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{APP_TITLE}}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Minimal styling placeholder. Replace with full v3.3 CSS. */
+    body { font-family: sans-serif; margin: 1.5rem; }
+    h1 { font-size: 1.4rem; margin-bottom: 0.5rem; }
+    .tagver { font-size: 0.8rem; color: #555; margin-left: 0.5rem; }
+    .step { border: 1px solid #ccc; padding: 0.75rem; margin-bottom: 0.5rem; }
+    .step-title { font-weight: bold; margin-bottom: 0.25rem; }
+    pre { background: #f7f7f7; padding: 0.5rem; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1 id="appTitle">
+    {{APP_TITLE_VISIBLE}}
+    <span class="tagver">(v3.3, multi-run)</span>
+  </h1>
+
+  <section id="meta">
+    <h2>Run Header (placeholder)</h2>
+    <div>
+      <label>Repo:
+        <input id="metaRepo" value="{{META_REPO}}">
+      </label>
+    </div>
+    <div>
+      <label>Entity / Function / SubEntity:
+        <input id="metaEntity" value="{{META_ENTITY}}">
+      </label>
+    </div>
+    <div>
+      <label>SOP ID:
+        <input id="metaSOP" value="{{META_SOP_DEFAULT}}">
+      </label>
+    </div>
+    <div>
+      <label>Image Folder:
+        <input id="metaImgFolder" value="{{META_IMG_FOLDER_DEF}}">
+      </label>
+    </div>
+    <div>
+      <label>Run Label:
+        <input id="metaRunLabel" value="{{RUN_LABEL_DEFAULT}}">
+      </label>
+    </div>
+  </section>
+
+  <hr>
+
+  <section id="steps">
+    <!-- Steps will be rendered by JavaScript from the embedded JSON. -->
+  </section>
+
+  <script>
+    // This JSON is injected by checklist_builder.py
+    let steps = {{STEPS_JSON}};
+
+    function updateTitle() {
+      const sop = document.getElementById("metaSOP")?.value || "";
+      const runLabel = document.getElementById("metaRunLabel")?.value || "";
+      const base = sop ? `${sop} – Interactive Checklist` : document.title;
+      document.title = runLabel ? `${base} – [${runLabel}]` : base;
+    }
+
+    function renderSteps() {
+      const container = document.getElementById("steps");
+      container.innerHTML = "";
+
+      steps.forEach((step) => {
+        const div = document.createElement("div");
+        div.className = "step";
+
+        const title = document.createElement("div");
+        title.className = "step-title";
+        title.textContent = step.title || step.step_id || step.id;
+        div.appendChild(title);
+
+        if (step.command) {
+          const pre = document.createElement("pre");
+          pre.textContent = step.command;
+          div.appendChild(pre);
+        }
+
+        if (step.hints) {
+          const hints = document.createElement("div");
+          hints.textContent = `Hints: ${step.hints}`;
+          div.appendChild(hints);
+        }
+
+        container.appendChild(div);
+      });
+    }
+
+    function wireHeaderEvents() {
+      const fields = ["metaSOP", "metaRunLabel"];
+      fields.forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener("input", updateTitle);
+        }
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderSteps();
+      wireHeaderEvents();
+      updateTitle();
+    });
+  </script>
+</body>
+</html>
